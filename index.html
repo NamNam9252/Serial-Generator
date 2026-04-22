@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Serial Generator</title>
+  <style>
+    body {
+      font-family: Arial;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    input, button {
+      padding: 10px;
+      margin: 5px;
+      font-size: 16px;
+    }
+    #output {
+      margin-top: 20px;
+      font-weight: bold;
+      white-space: pre-line;
+    }
+  </style>
+</head>
+<body>
+
+<h2>🔢 Serial Generator</h2>
+
+<input id="inputStr" placeholder="Enter string (e.g. A0A0)">
+<br>
+<input id="bias" type="number" placeholder="Enter bias (e.g. 4000)">
+<br>
+<input id="count" type="number" placeholder="How many results?" value="5">
+<br>
+
+<button onclick="generate()">Generate</button>
+
+<div id="output"></div>
+
+<script>
+function encode(str) {
+  let total = 0;
+  let base = 1;
+
+  for (let i = str.length - 1; i >= 0; i--) {
+    let ch = str[i];
+
+    if (/[0-9]/.test(ch)) {
+      total += parseInt(ch) * base;
+      base *= 10;
+    } else if (/[A-Z]/.test(ch)) {
+      total += (ch.charCodeAt(0) - 65) * base;
+      base *= 26;
+    }
+  }
+  return total;
+}
+
+function decode(num, pattern) {
+  let result = "";
+
+  for (let i = pattern.length - 1; i >= 0; i--) {
+    let ch = pattern[i];
+
+    if (/[0-9]/.test(ch)) {
+      result = (num % 10) + result;
+      num = Math.floor(num / 10);
+    } else if (/[A-Z]/.test(ch)) {
+      result = String.fromCharCode((num % 26) + 65) + result;
+      num = Math.floor(num / 26);
+    }
+  }
+
+  return result;
+}
+
+function generate() {
+  let str = document.getElementById("inputStr").value.toUpperCase();
+  let bias = parseInt(document.getElementById("bias").value) || 0;
+  let count = parseInt(document.getElementById("count").value) || 1;
+
+  let baseValue = encode(str);
+  let start = baseValue + bias;
+
+  let output = "";
+
+  for (let i = 0; i < count; i++) {
+    output += decode(start + i, str) + "\n";
+  }
+
+  document.getElementById("output").innerText = output;
+}
+</script>
+
+</body>
+</html>
